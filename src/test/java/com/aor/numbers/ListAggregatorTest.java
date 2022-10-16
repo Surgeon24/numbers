@@ -58,11 +58,30 @@ public class ListAggregatorTest {
 
     @Test
     public void distinct() {
+        class Stub3 implements GenericListDeduplicator {
+            public List<Integer> deduplicate(List<Integer> list, GenericListSorter sor){
+                return Arrays.asList(1,2,3);
+            }
+        }
+        class Stub4 implements GenericListDeduplicator {
+            public List<Integer> deduplicate(List<Integer> list, GenericListSorter sor){
+                return Arrays.asList(1,2,3,4);
+            }
+        }
+        class Stub5 implements GenericListDeduplicator {
+            public List<Integer> deduplicate(List<Integer> list, GenericListSorter sor){
+                return Arrays.asList(1,2,3,4,5);
+            }
+        }
+
         ListAggregator aggregator = new ListAggregator();
-        int distinct1 = aggregator.distinct(list1);
-        int distinct2 = aggregator.distinct(list2);
-        int distinct3 = aggregator.distinct(list3);
-        int distinct4 = aggregator.distinct(list4);
+        GenericListDeduplicator dedup3 = new Stub3();
+        GenericListDeduplicator dedup4 = new Stub4();
+        GenericListDeduplicator dedup5 = new Stub5();
+        int distinct1 = aggregator.distinct(list1, dedup4);
+        int distinct2 = aggregator.distinct(list2, dedup4);
+        int distinct3 = aggregator.distinct(list3, dedup3);
+        int distinct4 = aggregator.distinct(list4, dedup5);
         Assertions.assertEquals(4, distinct1);
         Assertions.assertEquals(4, distinct2);
         Assertions.assertEquals(3, distinct3);
@@ -80,10 +99,8 @@ public class ListAggregatorTest {
     @Test
     public void distinct_bug_8726(){
         ListAggregator aggregator = new ListAggregator();
-        int distinct = aggregator.distinct(Arrays.asList(1, 2, 4, 2));
-        //ListAggregator aggregator = new ListAggregator();
-        //List<Integer> list = Arrays.asList(1,2,4,2);
-        //int distinct = aggregator.distinct(list);
+        ListDeduplicator deduplicator = new ListDeduplicator();
+        int distinct = aggregator.distinct(Arrays.asList(1, 2, 4, 2), deduplicator);
         Assertions.assertEquals(3, distinct);
     }
 }
