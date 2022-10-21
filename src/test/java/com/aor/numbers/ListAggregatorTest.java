@@ -3,6 +3,7 @@ package com.aor.numbers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -58,33 +59,31 @@ public class ListAggregatorTest {
 
     @Test
     public void distinct() {
-        class Stub3 implements GenericListDeduplicator {
-            public List<Integer> deduplicate(List<Integer> list, GenericListSorter sor){
-                return Arrays.asList(1,2,3);
-            }
-        }
-        class Stub4 implements GenericListDeduplicator {
-            public List<Integer> deduplicate(List<Integer> list, GenericListSorter sor){
-                return Arrays.asList(1,2,3,4);
-            }
-        }
-        class Stub5 implements GenericListDeduplicator {
-            public List<Integer> deduplicate(List<Integer> list, GenericListSorter sor){
-                return Arrays.asList(1,2,3,4,5);
-            }
-        }
+        GenericListDeduplicator dedupMockito1 =
+                Mockito.mock(GenericListDeduplicator.class);
+        Mockito.when(dedupMockito1.deduplicate(Mockito.anyList(), Mockito.any())).thenReturn(Arrays.asList(1, 4, 5));
+
+        GenericListDeduplicator dedupMockito2 =
+                Mockito.mock(GenericListDeduplicator.class);
+        Mockito.when(dedupMockito2.deduplicate(Mockito.anyList(), Mockito.any())).thenReturn(Arrays.asList(2, 4, 7));
+
+        GenericListDeduplicator dedupMockito3 =
+                Mockito.mock(GenericListDeduplicator.class);
+        Mockito.when(dedupMockito3.deduplicate(Mockito.anyList(), Mockito.any())).thenReturn(Arrays.asList(7, 8));
+
+        GenericListDeduplicator dedupMockito4 =
+                Mockito.mock(GenericListDeduplicator.class);
+        Mockito.when(dedupMockito4.deduplicate(Mockito.anyList(), Mockito.any())).thenReturn(Arrays.asList(1, 2, 3, 4, 5));
 
         ListAggregator aggregator = new ListAggregator();
-        GenericListDeduplicator dedup3 = new Stub3();
-        GenericListDeduplicator dedup4 = new Stub4();
-        GenericListDeduplicator dedup5 = new Stub5();
-        int distinct1 = aggregator.distinct(list1, dedup4);
-        int distinct2 = aggregator.distinct(list2, dedup4);
-        int distinct3 = aggregator.distinct(list3, dedup3);
-        int distinct4 = aggregator.distinct(list4, dedup5);
-        Assertions.assertEquals(4, distinct1);
-        Assertions.assertEquals(4, distinct2);
-        Assertions.assertEquals(3, distinct3);
+
+        int distinct1 = aggregator.distinct(list1, dedupMockito1);
+        int distinct2 = aggregator.distinct(list2, dedupMockito2);
+        int distinct3 = aggregator.distinct(list3, dedupMockito3);
+        int distinct4 = aggregator.distinct(list4, dedupMockito4);
+        Assertions.assertEquals(3, distinct1);
+        Assertions.assertEquals(3, distinct2);
+        Assertions.assertEquals(2, distinct3);
         Assertions.assertEquals(5, distinct4);
     }
 

@@ -3,6 +3,7 @@ package com.aor.numbers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,33 +22,27 @@ public class ListDeduplicatorTest {
 
     @Test
     public void deduplicate() {
-        class Stub1 implements GenericListSorter {
-            public List<Integer> sort(List<Integer> list){
-                return Arrays.asList(1,2,2,4);
-            }
-        }
-        class Stub2 implements GenericListSorter {
-            public List<Integer> sort(List<Integer> list){
-                return Arrays.asList(2,3,7,7,7);
-            }
-        }
-        class Stub3 implements GenericListSorter {
-            public List<Integer> sort(List<Integer> list){
-                return Arrays.asList(1,2,3,4,5);
-            }
-        }
-
         ListDeduplicator deduplicator = new ListDeduplicator();
-        GenericListSorter sort1 = new Stub1();
-        GenericListSorter sort2 = new Stub2();
-        GenericListSorter sort3 = new Stub3();
 
-        List<Integer> distinct1 = deduplicator.deduplicate(list1, sort1);
-        List<Integer> distinct2 = deduplicator.deduplicate(list2, sort2);
-        List<Integer> distinct3 = deduplicator.deduplicate(list3, sort3);
+        GenericListSorter sortMockito1 =
+                Mockito.mock(GenericListSorter.class);
+        Mockito.when(sortMockito1.sort(Mockito.anyList())).thenReturn(Arrays.asList(1, 2, 2, 4));
+
+        GenericListSorter sortMockito2 =
+                Mockito.mock(GenericListSorter.class);
+        Mockito.when(sortMockito2.sort(Mockito.anyList())).thenReturn(Arrays.asList(2, 3, 7, 7, 7));
+
+        GenericListSorter sortMockito3 =
+                Mockito.mock(GenericListSorter.class);
+        Mockito.when(sortMockito3.sort(Mockito.anyList())).thenReturn(Arrays.asList(1, 2, 3, 4, 5));
+
+        List<Integer> distinct1 = deduplicator.deduplicate(list1, sortMockito1);
+        List<Integer> distinct2 = deduplicator.deduplicate(list2, sortMockito2);
+        List<Integer> distinct3 = deduplicator.deduplicate(list3, sortMockito3);
 
         Assertions.assertEquals(Arrays.asList(1,2,4), distinct1);
         Assertions.assertEquals(Arrays.asList(2,3,7), distinct2);
         Assertions.assertEquals(Arrays.asList(1,2,3,4,5), distinct3);
     }
+
 }
